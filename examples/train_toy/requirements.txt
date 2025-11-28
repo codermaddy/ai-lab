@@ -1,0 +1,3 @@
+# package requirements for the toy example
+# lab-logger will be installed editable from the repo root during bootstrap
+wandb

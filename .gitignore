@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.pyc
+.Python
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Virtualenv + caches
+pip-wheel-metadata/
+build/
+dist/
+
+# Local manifests / runtime DBs and checkpoints (do NOT commit runtime data)
+manifests/*.db
+manifests/*.sqlite
+manifests/seed_*.db
+checkpoints/
+checkpoints/**
+
+# W&B local files
+wandb/
+wandb-*
+wandb-metadata.json
+wandb-summary.json
+output.log
+
+# Node (if frontend later)
+node_modules/
+
+# System files
+*.log
+
+# Secret files
+*.pem
+*.key
+*.crt

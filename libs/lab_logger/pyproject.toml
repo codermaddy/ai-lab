@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lab-logger"
+version = "0.1.0"
+description = "Experiment manifest logger and wandb-friendly decorator"
+authors = [{name="Himanshu Ranjan"}]
+dependencies = [
+  "gitpython>=3.1.0",
+  "wandb>=0.15.0"
+]
