@@ -10,7 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score, f1_score, log_loss
 
 # import decorator (installed editable)
-from lab_logger.core import log_run
+from libs.lab_logger.core import log_run
 
 
 def build_sgd_model(model_name: str, learning_rate: float, random_state: int) -> SGDClassifier:

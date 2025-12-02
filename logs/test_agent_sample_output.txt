@@ -1,0 +1,25 @@
+python -m scripts.test_agent
+STATUS: 200
+RESPONSE:
+{'intent': 'best_run', 'natural_language_answer': 'No runs found for CIFAR-10 by val_accuracy.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'compare_runs', 'natural_language_answer': 'I attempted to plan and call tools, but could not produce a fully structured answer. Please try a simpler query.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'flag_run', 'natural_language_answer': 'No runs found for CIFAR-10.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'summarize', 'natural_language_answer': 'No experiments found on MNIST.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'best_run', 'natural_language_answer': 'No top runs found for val_accuracy.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'compare_runs', 'natural_language_answer': 'I attempted to plan and call tools, but could not produce a fully structured answer. Please try a simpler query.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'flag_run', 'natural_language_answer': 'No best run found for flagging.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+STATUS: 200
+RESPONSE:
+{'intent': 'summarize', 'natural_language_answer': 'No experiments found.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}

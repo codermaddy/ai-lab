@@ -1,13 +1,19 @@
+# agents/chat_agent.py
+
+from typing import List, Optional, Any
+
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+from agents.agents import AgentAnswer, ComparisonResult
+from agents.orchestrator import build_agent
+
+
 class AgentQuery(BaseModel):
     query: str
 
 
 class AgentResponse(BaseModel):
-    """
-    This is what frontend receives.
-
-    It's just AgentAnswer validated and re-emitted.
-    """
     intent: str
     natural_language_answer: str
     used_run_ids: List[str]
@@ -16,10 +22,10 @@ class AgentResponse(BaseModel):
 
 
 router = APIRouter()
-_agent_executor: Optional[AgentExecutor] = None
+_agent_executor: Optional[Any] = None  # SimpleAgent instance
 
 
-def get_agent() -> AgentExecutor:
+def get_agent():
     global _agent_executor
     if _agent_executor is None:
         _agent_executor = build_agent()
@@ -32,17 +38,16 @@ def agent_query(payload: AgentQuery) -> AgentResponse:
     Endpoint used by chatbox.
 
     - Takes a natural-language query.
-    - Runs the agent with tools.
+    - Runs the SimpleAgent (LLM + tools).
     - Parses the JSON output into AgentAnswer (validation).
     """
     agent = get_agent()
 
-    # Run the agent; it will return a string (JSON) in 'output'
-    result = agent.invoke({"input": payload.query})
-    raw_text = result["output"]
+    # SimpleAgent.invoke returns a JSON string
+    raw_json = agent.invoke(payload.query)
 
     # Let Pydantic validate & parse this.
-    parsed = AgentAnswer.model_validate_json(raw_text)
+    parsed = AgentAnswer.model_validate_json(raw_json)
 
     return AgentResponse(
         intent=parsed.intent,

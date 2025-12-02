@@ -1,4 +1,4 @@
-from run import train_model
+from .run import train_model
 
 MODELS = ["logistic_regression", "linear_svm", "perceptron"]
 
