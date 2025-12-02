@@ -47,3 +47,4 @@ node_modules/
 *.pem
 *.key
 *.crt
+.env
