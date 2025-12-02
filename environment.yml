@@ -1,0 +1,18 @@
+name: ai-lab-notebook
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - fastapi
+    - uvicorn
+    - langchain
+    - langchain-openai
+    - langchain-community
+    - chromadb
+    - pydantic
+    - requests
+    - python-dotenv
+    - langchain-ollama
