@@ -6,7 +6,7 @@ I’ve kept it crisp, well-structured, and professional.
 
 ---
 
-# AI Lab Notebook — Backend + Experiment Logger
+# AI Lab Notebook — Backend + Experiment Logger + LangChain Agent
 
 This repository implements a lightweight **experiment tracking system** designed for ML workflows.
 It consists of:
@@ -26,28 +26,43 @@ Everything is fully local and W&B-optional.
 ```
 ai-lab/
 │
-├── libs/lab_logger/              # logging library (editable install)
-│    └── lab_logger/core.py       # main logger
-│
-├── manifests/
-│    └── manifests.db             # SQLite database (auto-created)
+├── app.py                      # FastAPI entrypoint (mounts core API + agent API)
 │
 ├── backend/
-│    ├── api.py                   # FastAPI routes
-│    ├── db_utils.py              # DB access helpers
-│    ├── models.py                # Pydantic schemas
-│    └── config.py                # loads .env, project name, DB path
+│   ├── api.py                  # Core REST endpoints (/runs, /leaderboard, etc.)
+│   ├── db_utils.py             # DB access helpers (SQLite)
+│   ├── models.py               # Pydantic schemas for runs, metrics, etc.
+│   └── config.py               # loads .env, project name, DB path
+│
+├── libs/
+│   └── lab_logger/
+│       ├── __init__.py         # exposes log_run()
+│       └── core.py             # main logger decorator (writes to manifests.db)
+│
+├── agents/
+│   ├── __init__.py
+│   ├── agents.py               # Pydantic models for AgentAnswer, ComparisonResult
+│   ├── orchestrator.py         # LangChain-based SimpleAgent (planner + tools + answer)
+│   └── chat_agent.py           # FastAPI router exposing POST /agent/query
+│
+├── tools/
+│   ├── __init__.py
+│   └── langchain_tools.py      # LangChain @tool wrappers over HTTP backend (/runs, /leaderboard, etc.)
+│
+├── manifests/
+│   └── manifests.db            # SQLite database (auto-created)
 │
 ├── examples/
-│    └── train_model/
-│          ├── run.py             # multi-model, multi-epoch trainer
-│          ├── sweep.py           # run many experiments
-│          └── checkpoints/       # model.ckpt + metrics.csv are saved here
+│   └── train_model/
+│       ├── run.py              # multi-model, multi-epoch trainer
+│       ├── sweep.py            # run many experiments, logs multiple runs
+│       └── checkpoints/        # model_*.joblib + metrics_*.csv
 │
 ├── scripts/
-│    ├── check_latest_runs.py     # verify params + artifacts
-│    └── inspect_metrics_artifacts.py   # inspect metrics.csv contents
-│
+│   ├── check_latest_runs.py        # inspect latest runs from DB
+│   ├── inspect_metrics_artifacts.py# inspect metrics_*.csv artifacts
+│   └── test_agent.py               # simple CLI tester for /agent/query
+│__ app.py  $ The backend app runs from here
 ├── .env
 └── requirements.txt
 ```
@@ -63,6 +78,7 @@ PROJECT_NAME=ai-lab
 DB_PATH=manifests/manifests.db
 WANDB_PROJECT=ai-lab
 WANDB_API_KEY=YOUR_KEY_HERE   # optional
+OLLAMA_BASE_URL=http://localhost:11434
 ```
 
 Do **not** commit `.env`.
@@ -394,6 +410,275 @@ curl "http://localhost:8000/runs/leaderboard?metric_name=accuracy"
 ```
 
 ---
+'
+## Running Experiments
+
+### 6.1 Install dependencies
+
+```bash
+conda create -n ai-lab-notebook python=3.10
+conda activate ai-lab-notebook
+pip install -r requirements.txt
+```
+
+### 6.2 Run Ollama server
+```bash
+python -m servers.ollama_server
+```
+
+## 8. LangChain Tools Layer (`tools/langchain_tools.py`)
+
+This module exposes the backend HTTP API as **LangChain tools**, using the `@tool` decorator.  
+These tools are the **only** way the LLM interacts with experiment data — the agent never touches SQLite directly.
+
+### Available Tools
+
+| Tool Name | Backend API Called | Purpose |
+|----------|--------------------|---------|
+| `list_runs(...)` | `GET /runs` | List/filter runs by dataset, command substring, notes, etc. |
+| `leaderboard(metric_name, top_k, ...)` | `GET /runs/leaderboard` | Return top runs sorted by a metric (e.g., accuracy). |
+| `get_run_details(run_id)` | `GET /runs/{run_id}` | Retrieve a run’s full metadata, params, artifacts, and metrics. |
+| `compare_runs(run_ids)` | `GET /runs/compare?ids=...` | Return unified metric/param keys and full details for comparison tables. |
+| `flag_run_for_publish(run_id)` | `PATCH /runs/{id}/note` | Tag a run as `"PUBLISH"` (or for later UI display). |
+| `search_run_summaries(query, limit)` | `GET /runs` | Build textual summaries and perform simple retrieval over runs. |
+
+These tools convert backend JSON responses into agent-usable structures.
+
+---
+
+## 9. Agent Layer (LangChain)
+
+The agent layer consists of:
+
+- **`agents/agents.py`** — Pydantic schemas for agent output  
+- **`agents/orchestrator.py`** — Planner + Answer LLM chains (tool-calling logic)  
+- **`agents/chat_agent.py`** — FastAPI wrapper exposing `/agent/query`
+
+---
+
+## 9.1 `agents/agents.py` — Agent Output Schema
+
+Defines structured Pydantic models that validate whatever the LLM produces.
+
+### Key Models
+
+#### **AgentAnswer**
+```json
+{
+  "intent": "best_run",
+  "natural_language_answer": "...",
+  "used_run_ids": ["..."],
+  "comparison": { ... } | null,
+  "flagged_run_id": "..." | null
+}
+```
+
+## 11. Testing the Agent — `scripts/test_agent.py`
+
+This script provides a **quick, automated way to verify that the LangChain agent, its tools, and the FastAPI backend are working correctly together**.
+
+It simulates a client calling the `/agent/query` endpoint and prints the structured JSON response.
+
+---
+
+### Location- scripts/test_agent.py
+
+---
+
+## 🔍 What This Script Does
+
+1. **Sends natural-language queries** to your running FastAPI server (`http://localhost:8000/agent/query`).
+2. **Receives the agent’s structured JSON output**, validated by Pydantic.
+3. Confirms:
+   - The **Planner** correctly selects a tool.
+   - The backend **tool execution succeeds**.
+   - The **Answer chain** returns valid `AgentAnswer` JSON.
+4. Shows clear console output for debugging:
+   - HTTP status code  
+   - Raw JSON returned by the agent  
+   - Any errors if JSON is malformed  
+
+This is your “smoke test” to ensure the entire stack is healthy.
+
+---
+
+## 🧪 What It Tests Internally
+
+| Component | Verified? | How |
+|----------|-----------|------|
+| **LangChain Planner** | ✔ | Does it pick `leaderboard`, `list_runs`, etc.? |
+| **LangChain Tools** | ✔ | Do they hit `/runs`, `/runs/leaderboard`, `/runs/{id}` correctly? |
+| **Backend API** | ✔ | Are endpoints returning valid JSON? |
+| **Agent Answer Chain** | ✔ | Is the final JSON valid according to `AgentAnswer` schema? |
+| **FastAPI router** | ✔ | Does `/agent/query` handle requests properly? |
+
+If *any* part of the stack breaks, the script will either:
+- Return a **500 error**, or  
+- Fail JSON parsing → meaning the agent returned invalid output.
+
+This makes debugging easy.
+
+---
+
+## 🧾 Example Structure of the Script
+
+A simplified conceptual version:
+
+```python
+import requests
+
+def ask(query: str):
+    payload = {"query": query}
+    resp = requests.post("http://localhost:8000/agent/query", json=payload)
+    print("STATUS:", resp.status_code)
+    print("RESPONSE:")
+    print(resp.json())    # ensures JSON is valid
+
+if __name__ == "__main__":
+    ask("List my top runs by accuracy.")
+    ask("Compare the best two runs.")
+    ask("Flag the best run for publish.")
+    ask("Summarize my recent experiments.")
+```
+
+Each call prints agent output:
+
+```python
+STATUS: 200
+RESPONSE:
+{
+  "intent": "best_run",
+  "natural_language_answer": "...",
+  "used_run_ids": [...],
+  "comparison": null,
+  "flagged_run_id": null
+}
+```
+
+#### How to Run It
+Start your backend:
+```bash
+uvicorn app:app --reload --port 8000
+```
+Then run the script:
+```python
+python -m scripts.test_agent
+```
+
+You should see:
+	•	STATUS: 200
+	•	Valid JSON printed from the agent
+
+If you get STATUS: 500 or JSONDecodeError → the agent chain likely crashed.
+
+## 12. UI / Frontend Integration
+
+You can integrate **any UI** (Streamlit, React, Vue, SwiftUI, Flutter, etc.) with this system.  
+There are **two recommended integration layers**, depending on how much control you want:  
+**(A) Chat-style natural language interface**, or **(B) direct structured API access**.
+
+---
+
+# 12.1 Using the Agent Endpoint (`POST /agent/query`)
+
+This is the easiest and most flexible method.  
+Perfect for **chatbots**, **assistant panels**, or **query-driven dashboards**.
+
+### ▶️ Example (Python pseudo-code)
+
+```python
+import requests
+
+BASE_URL = "http://localhost:8000"
+
+def query_agent(user_text: str):
+    resp = requests.post(
+        f"{BASE_URL}/agent/query",
+        json={"query": user_text},
+        timeout=60,
+    )
+    data = resp.json()
+    print(data["natural_language_answer"])
+    print("Runs referenced:", data["used_run_ids"])
+ ```
+Typical UI Flow
+	1.	User types:
+“Show me my top 3 runs by accuracy and compare them.”
+	2.	UI sends:
+```jsunicoderegexp
+POST /agent/query
+{ "query": "Show me my top 3 runs by accuracy and compare them." }
+```
+
+3. **Agent returns JSON:**
+
+- `natural_language_answer` → text to display in the UI  
+- `used_run_ids` → list of related runs  
+
+4. **If deeper visualization is needed, the UI can then call:**
+
+- `GET /runs/{id}`  
+- `GET /runs/compare?ids=...`  
+
+Using these, the UI can build:
+
+- comparison tables  
+- metric charts  
+- model card views  
+- artifact previews  
+
+---
+
+# 12.2 Using Core Backend Endpoints Directly
+
+This gives **full control**, ideal for:
+
+- Streamlit dashboards  
+- custom charts  
+- experiment browsers  
+- Jupyter analysis  
+
+---
+
+## Example Workflow (Streamlit / Python)
+
+```python
+import pandas as pd
+import requests
+
+BASE_URL = "http://localhost:8000"
+
+# 1) Fetch leaderboard
+runs = requests.get(
+    f"{BASE_URL}/runs/leaderboard?metric_name=accuracy&top_k=5"
+).json()
+
+# 2) Select one run
+run_id = runs[0]["run_id"]
+detail = requests.get(f"{BASE_URL}/runs/{run_id}").json()
+
+# 3) Locate metrics CSV for plotting
+metrics_csv = [
+    p for p in detail["artifacts"]
+    if "metrics_" in p and p.endswith(".csv")
+][0]
+
+df = pd.read_csv(metrics_csv)
+
+# Now you can plot:
+# df["epoch"], df["train_loss"], df["val_loss"]
+```
+
+# What You Get From Backend Endpoints
+
+| **Endpoint**                   | **Useful For**                                 |
+|-------------------------------|------------------------------------------------|
+| `GET /runs`                   | Populate full experiment tables                |
+| `GET /runs/{id}`              | Show details, params, metrics, artifacts       |
+| `GET /runs/leaderboard`       | Leaderboard charts                             |
+| `GET /runs/compare?ids=...`   | Comparison heatmaps, tables                    |
+| `PATCH /runs/{id}/note`       | Marking runs as **BEST** / **PUBLISH**         |
+
 
 # 10. What This System Supports (Final Summary)
 

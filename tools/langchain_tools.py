@@ -1,9 +1,10 @@
-# from langchain_core.tools import tool
+from langchain_core.tools import tool
 import requests
 from typing import Any, Dict, List, Optional
 
 BACKEND_BASE_URL = "http://localhost:8000"
 
+@tool
 def list_runs(
     limit: int = 50,
     offset: int = 0,
@@ -34,6 +35,7 @@ def list_runs(
     return r.json()  # list[RunSummary]
 
 
+@tool
 def leaderboard(
     metric_name: str,
     top_k: int = 10,
@@ -61,6 +63,7 @@ def leaderboard(
     return r.json()  # list[RunSummary]
 
 
+@tool
 def get_run_details(run_id: str):
     """
     Get full details for a single run via /runs/{run_id}.
@@ -70,6 +73,7 @@ def get_run_details(run_id: str):
     return r.json()  # RunDetail
 
 
+@tool
 def compare_runs(run_ids: List[str]):
     """
     Compare multiple runs by ID using /runs/compare?ids=...
@@ -86,6 +90,7 @@ def compare_runs(run_ids: List[str]):
     return r.json()
 
 
+@tool
 def flag_run_for_publish(run_id: str):
     """
     "Flag for publish" is modelled as updating the note field to include 'PUBLISH'.
@@ -104,6 +109,7 @@ def flag_run_for_publish(run_id: str):
     return r.json()  # RunDetail after update
 
 
+@tool
 def search_run_summaries(
     query: str,
     limit: int = 100,

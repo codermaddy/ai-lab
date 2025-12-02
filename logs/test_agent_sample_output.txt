@@ -1,25 +1,12 @@
-python -m scripts.test_agent
 STATUS: 200
 RESPONSE:
-{'intent': 'best_run', 'natural_language_answer': 'No runs found for CIFAR-10 by val_accuracy.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+{'intent': 'list_runs', 'natural_language_answer': 'Here are the top 10 runs by accuracy:', 'used_run_ids': ['4f8c23f2-a240-4c66-9480-e83c44306472', '3f6a7647-da96-42b0-a702-d4811b2692a2', '6d9dcfb2-de48-4d41-9f87-2b00361b11dc', '6d0b82eb-cccf-4eff-a9d5-88b23c5f1933', '9d6affe0-e9fd-4b5b-b784-876ce9b97ad3', 'e2cda87a-8225-4082-a4b0-088678df329f', 'c0306b2c-046d-4529-8115-702e1a7540e0', '7477918f-a045-473f-b428-f301c99025e7', '3b419edc-c771-446c-a047-b131c50537ad'], 'comparison': None, 'flagged_run_id': None}
 STATUS: 200
 RESPONSE:
-{'intent': 'compare_runs', 'natural_language_answer': 'I attempted to plan and call tools, but could not produce a fully structured answer. Please try a simpler query.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+{'intent': 'compare_runs', 'natural_language_answer': 'An error occurred while comparing runs.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
 STATUS: 200
 RESPONSE:
-{'intent': 'flag_run', 'natural_language_answer': 'No runs found for CIFAR-10.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+{'intent': 'flag_run', 'natural_language_answer': 'The best run with the lowest final validation loss is flagged for publishing.', 'used_run_ids': ['3b419edc-c771-446c-a047-b131c50537ad'], 'comparison': None, 'flagged_run_id': '3b419edc-c771-446c-a047-b131c50537ad'}
 STATUS: 200
 RESPONSE:
-{'intent': 'summarize', 'natural_language_answer': 'No experiments found on MNIST.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
-STATUS: 200
-RESPONSE:
-{'intent': 'best_run', 'natural_language_answer': 'No top runs found for val_accuracy.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
-STATUS: 200
-RESPONSE:
-{'intent': 'compare_runs', 'natural_language_answer': 'I attempted to plan and call tools, but could not produce a fully structured answer. Please try a simpler query.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
-STATUS: 200
-RESPONSE:
-{'intent': 'flag_run', 'natural_language_answer': 'No best run found for flagging.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
-STATUS: 200
-RESPONSE:
-{'intent': 'summarize', 'natural_language_answer': 'No experiments found.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}
+{'intent': 'summarize', 'natural_language_answer': 'No runs found for the iris_classification task.', 'used_run_ids': [], 'comparison': None, 'flagged_run_id': None}

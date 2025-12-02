@@ -10,7 +10,7 @@ def ask(query: str):
     print(resp.json())
 
 if __name__ == "__main__":
-    ask("List my top runs by val_accuracy.")
-    ask("Compare two best runs and tell me which is better.")
+    ask("List my top runs by accuracy.")
+    ask("Compare the two best runs and tell me which is better.")
     ask("Flag the best run for publishing.")
-    ask("Summarize my experiments.")
+    ask("Summarize my experiments on the iris_classification task.")
