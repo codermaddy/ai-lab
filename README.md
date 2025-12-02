@@ -1,10 +1,4 @@
 # ai-lab
-Below is a **clean, production-quality README** you can paste directly into your GitHub repo.
-It explains the workflow, DB schema, endpoints, artifacts, training scripts, and exactly what your friend (agent builder) needs to know.
-
-I’ve kept it crisp, well-structured, and professional.
-
----
 
 # AI Lab Notebook — Backend + Experiment Logger
 
