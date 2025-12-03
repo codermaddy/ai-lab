@@ -1,19 +1,3 @@
-Understood.
-Here is a **detailed, clean, professional README** — *no fluff, no filler*, exactly matching your real system:
-
-* **SQLite DB**
-* **FastAPI backend**
-* **OpenAI-powered LangChain agent**
-* **lab_logger**
-* **db_utils.py** exactly as you pasted
-* **runs, comparison, leaderboard, notes endpoints**
-* **Streamlit optional**
-* Everything documented clearly, technically, and correctly.
-
-This is the final README you can directly paste into your GitHub repo.
-
----
-
 # AI-Lab — Lightweight Experiment Tracker + FastAPI Backend + OpenAI-Powered Agent
 
 `ai-lab` is a **simple, local-first experiment tracking stack**.
