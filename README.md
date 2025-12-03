@@ -339,21 +339,7 @@ Output is `AgentAnswer`:
 ```
 
 ---
-'
-## Running Experiments
 
-### 6.1 Install dependencies
-
-```bash
-conda create -n ai-lab-notebook python=3.10
-conda activate ai-lab-notebook
-pip install -r requirements.txt
-```
-
-### 6.2 Run Ollama server
-```bash
-python -m servers.ollama_server
-```
 
 ## 8. LangChain Tools Layer (`tools/langchain_tools.py`)
 
@@ -402,7 +388,7 @@ Defines structured Pydantic models that validate whatever the LLM produces.
 }
 ```
 
-## 11. Testing the Agent — `scripts/test_agent.py`
+## 9.2 Testing the Agent — `scripts/test_agent.py`
 
 This script provides a **quick, automated way to verify that the LangChain agent, its tools, and the FastAPI backend are working correctly together**.
 
@@ -500,7 +486,7 @@ You should see:
 
 If you get STATUS: 500 or JSONDecodeError → the agent chain likely crashed.
 
-## 12. UI / Frontend Integration
+# 10. UI / Frontend Integration
 
 You can integrate **any UI** (Streamlit, React, Vue, SwiftUI, Flutter, etc.) with this system.  
 There are **two recommended integration layers**, depending on how much control you want:  
@@ -508,12 +494,12 @@ There are **two recommended integration layers**, depending on how much control 
 
 ---
 
-# 12.1 Using the Agent Endpoint (`POST /agent/query`)
+## 10.1 Using the Agent Endpoint (`POST /agent/query`)
 
 This is the easiest and most flexible method.  
 Perfect for **chatbots**, **assistant panels**, or **query-driven dashboards**.
 
-### ▶️ Example (Python pseudo-code)
+### Example (Python pseudo-code)
 
 ```python
 import requests
@@ -558,7 +544,7 @@ Using these, the UI can build:
 
 ---
 
-# 12.2 Using Core Backend Endpoints Directly
+## 10.2 Using Core Backend Endpoints Directly
 
 This gives **full control**, ideal for:
 
@@ -609,7 +595,7 @@ df = pd.read_csv(metrics_csv)
 | `PATCH /runs/{id}/note`       | Marking runs as **BEST** / **PUBLISH**         |
 
 
-# 8. LangChain Tools Layer — `tools/langchain_tools.py`
+# 11. LangChain Tools Layer — `tools/langchain_tools.py`
 
 These tools call backend endpoints via HTTP.
 
@@ -626,7 +612,7 @@ It only uses these HTTP tools.
 
 ---
 
-# 9. LangChain Agent — `agents/`
+# 12. LangChain Agent — `agents/`
 
 ### `agents/orchestrator.py`
 
@@ -658,7 +644,7 @@ Defines schemas:
 
 ---
 
-# 10. Testing the Agent — `scripts/test_agent.py`
+# 13. Testing the Agent — `scripts/test_agent.py`
 
 Run backend first:
 
@@ -682,7 +668,7 @@ If everything is correct → `STATUS: 200` for all.
 
 ---
 
-# 11. Streamlit UI — `stream.py`
+# 14. Streamlit UI — `stream.py`
 
 Tabs include:
 
@@ -703,7 +689,7 @@ Here is a **minimal, clean, ready-to-paste** version for your README — no fluf
 
 ---
 
-# 12. Minimal Workflow Summary
+# 15. Minimal Workflow Summary
 
 1. **Create `.env`**
 
@@ -760,7 +746,7 @@ manifests/manifests.db
 ---
 
 
-# 13. Features Supported
+# 16. Features Supported
 
 * Local manifest database
 * Complete run metadata
@@ -774,7 +760,7 @@ manifests/manifests.db
 
 ---
 
-## Future Scope
+# 17. Future Scope
 
 Planned and possible future enhancements:
 
