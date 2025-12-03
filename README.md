@@ -428,7 +428,7 @@ Tabs include:
 Run with:
 
 ```bash
-streamlit run streaml.py
+streamlit run stream.py
 ```
 
 ---
@@ -441,10 +441,12 @@ Here is a **minimal, clean, ready-to-paste** version for your README — no fluf
 
 1. **Create `.env`**
 
-```bash
-echo "PROJECT_NAME=ai-lab" > .env
-echo "DB_PATH=manifests/manifests.db" >> .env
-echo "OPENAI_API_KEY=YOUR_KEY_HERE" >> .env
+```env
+PROJECT_NAME=ai-lab
+DB_PATH=manifests/manifests.db
+WANDB_PROJECT=ai-lab
+WANDB_API_KEY= <Insert_key_here>
+OPENAI_API_KEY= <Insert_key_here> ## Agent LLM uses OpenAI
 ```
 
 2. **Install dependencies**
@@ -458,7 +460,7 @@ pip install -r requirements.txt
 3. **Run experiments (populate DB)**
 
 ```bash
-python examples/train_model/sweep.py
+python examples/train_model/sweep.py  ## better
 # or
 python examples/train_model/run.py --experiment_name test --model_name linear_svm --n_epochs 30
 ```
@@ -469,13 +471,13 @@ python examples/train_model/run.py --experiment_name test --model_name linear_sv
 uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 ```
 
-5. **(Optional) Start Streamlit UI**
+5. **Start Streamlit UI in a fresh terminal**
 
 ```bash
-streamlit run streaml.py
+streamlit run stream.py
 ```
 
-6. **Use the agent**
+6. **Alt you can use the agent via API directly**
 
 ```bash
 curl -X POST http://localhost:8000/agent/query \
@@ -491,8 +493,6 @@ manifests/manifests.db
 
 ---
 
-If you want, I can also generate a **Quickstart 30-second block**, **API examples**, or a **tiny architecture diagram**.
-
 
 # 13. Features Supported
 
@@ -504,13 +504,51 @@ If you want, I can also generate a **Quickstart 30-second block**, **API example
 * Multi-run comparison
 * Notes / tagging
 * OpenAI-powered tool-using agent
-* Optional UI
+* UI with Dashboard and Agent
 
 ---
 
-If you want, I can also generate:
+## Future Scope
 
-✅ a shorter README
-✅ an "Architecture Diagram" section (ASCII or image)
-✅ a "Quickstart in 30 seconds" section
-Just say the word.
+Planned and possible future enhancements:
+
+* **Artifacts Browser**
+  UI panel to view and download model files, metrics CSVs, logs.
+
+* **Rich Metrics Dashboard**
+  Time-series charts, metric aggregation, smoothing, anomaly detection.
+
+* **Background Task Queue**
+  For running sweeps asynchronously and tracking progress.
+
+* **Notifications & Alerts**
+  Notify when a new best run is logged based on a metric threshold.
+
+* **Search Indexing**
+  Embedding-based search over experiment parameters and notes.
+
+* **Extended Agent Abilities**
+
+  * “Find experiments similar to X”
+  * “Suggest hyperparameters for best accuracy”
+  * Auto-generate result summaries for reports.
+
+* **Authentication + Multi-user mode**
+  For teams sharing the backend.
+
+---
+
+## Acknowledgements
+
+* **Inspired by lightweight W&B-like workflows**, but designed to be fully local, simple, and transparent.
+* **OpenAI API** is used as the default LLM backend for the agent layer.
+* **LangChain** powers the tool-call planning system.
+* **FastAPI** provides the backend API layer.
+* **SQLite** enables a portable, zero-config experiment store.
+* **Streamlit** (optional) enables rapid UI prototyping for dashboards and run comparison.
+
+---
+
+
+### Architecture Diagram (ASCII)
+
