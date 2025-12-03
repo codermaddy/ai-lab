@@ -278,7 +278,7 @@ Start the backend:
 uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Endpoints (exact logic matches your code)
+### Endpoints 
 
 #### `GET /health`
 
@@ -416,15 +416,13 @@ If everything is correct → `STATUS: 200` for all.
 
 ---
 
-# 11. Optional Streamlit UI — `streaml.py`
+# 11. Streamlit UI — `stream.py`
 
-This UI uses only backend endpoints, not SQLite.
-
-Tabs normally include:
+Tabs include:
 
 1. **Runs Explorer** — uses `/runs`
 2. **Run Detail View** — uses `/runs/{id}` and reads metrics CSV
-3. **Compare Runs** — uses `/compare`
+3. **Compare Runs** — uses `/compare` and plots loss curves, other metrices
 4. **Assistant** — calls `/agent/query`
 
 Run with:
@@ -435,27 +433,66 @@ streamlit run streaml.py
 
 ---
 
-# 12. Minimal Workflow Summary
-
-1. Create `.env`
-
-2. Install dependencies
-
-3. Run experiments (`run.py` / `sweep.py`)
-
-4. Start backend:
-
-   ```bash
-   uvicorn backend.api:app --reload --port 8000
-   ```
-
-5. (Optional) Start Streamlit
-
-6. Use `/agent/query` for an intelligent interface
-
-7. Everything is stored in `manifests.db`
+Here is a **minimal, clean, ready-to-paste** version for your README — no fluff, only the required steps + commands.
 
 ---
+
+#12. Minimal Workflow Summary
+
+1. **Create `.env`**
+
+```bash
+echo "PROJECT_NAME=ai-lab" > .env
+echo "DB_PATH=manifests/manifests.db" >> .env
+echo "OPENAI_API_KEY=YOUR_KEY_HERE" >> .env
+```
+
+2. **Install dependencies**
+
+```bash
+conda create -n ai-lab-notebook python=3.10 -y
+conda activate ai-lab-notebook
+pip install -r requirements.txt
+```
+
+3. **Run experiments (populate DB)**
+
+```bash
+python examples/train_model/sweep.py
+# or
+python examples/train_model/run.py --experiment_name test --model_name linear_svm --n_epochs 30
+```
+
+4. **Start backend**
+
+```bash
+uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+```
+
+5. **(Optional) Start Streamlit UI**
+
+```bash
+streamlit run streaml.py
+```
+
+6. **Use the agent**
+
+```bash
+curl -X POST http://localhost:8000/agent/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "List my top runs"}'
+```
+
+7. **Everything is stored in**
+
+```
+manifests/manifests.db
+```
+
+---
+
+If you want, I can also generate a **Quickstart 30-second block**, **API examples**, or a **tiny architecture diagram**.
+
 
 # 13. Features Supported
 
