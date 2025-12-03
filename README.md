@@ -7,10 +7,7 @@ It contains:
 * **SQLite Database** — single-file manifest store (`manifests.db`)
 * **FastAPI Backend** — clean JSON endpoints for querying and comparing experiments
 * **LangChain Agent (OpenAI)** — uses backend endpoints as tools
-* **Optional Streamlit UI** — dashboards, run browser, comparisons, assistant
-
-Everything is meant to be small, inspectable, and hackable.
-No external infra is required.
+* **Streamlit UI** — dashboards, comparisons, AI assistant
 
 ---
 
