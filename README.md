@@ -361,7 +361,7 @@ These tools convert backend JSON responses into agent-usable structures.
 
 ---
 
-## 9. Agent Layer (LangChain)
+# 9. Agent Layer (LangChain)
 
 The agent layer consists of:
 
