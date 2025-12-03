@@ -52,7 +52,7 @@ ai-lab/
 │   ├── inspect_metrics_artifacts.py
 │   └── test_agent.py
 │
-├── streaml.py               # Optional Streamlit UI
+├── stream.py               #  Streamlit UI
 ├── .env
 └── requirements.txt
 ```
@@ -66,8 +66,9 @@ ai-lab/
 ```env
 PROJECT_NAME=ai-lab
 DB_PATH=manifests/manifests.db
-
-OPENAI_API_KEY=YOUR_KEY_HERE     # Agent LLM uses OpenAI
+WANDB_PROJECT=ai-lab
+WANDB_API_KEY= <Insert_key_here>
+OPENAI_API_KEY= <Insert_key_here> ## Agent LLM uses OpenAI
 ```
 
 ### Install:
