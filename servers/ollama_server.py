@@ -4,6 +4,7 @@ import requests
 
 OLLAMA_HOST = "http://localhost:11434"
 OLLAMA_BIN = "/opt/homebrew/bin/ollama"  # update based on `which ollama`
+OLLAMA_BIN = "ollama"
 MODEL_NAME = "llama3.1"
 
 def is_ollama_running():
@@ -29,7 +30,7 @@ def start_ollama_server():
     # Start Ollama daemon in background
     # NOTE: Do NOT capture stdout/stderr into PIPE — it may block.
     subprocess.Popen(
-        ["ollama", "serve"],
+        [OLLAMA_BIN, "serve"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )

@@ -1,8 +1,25 @@
-gitpython
-wandb
+# core
 fastapi
 uvicorn[standard]
+python-dotenv
 gitpython
 wandb
-python-dotenv
--e ./libs/lab_logger
+streamlit
+
+
+# langchain stack
+langchain
+langchain-core
+langchain-text-splitters
+langgraph
+langgraph-sdk
+langsmith
+langchain-openai
+
+# ml stack
+numpy
+scipy
+scikit-learn
+
+# local libs
+-e ./libs

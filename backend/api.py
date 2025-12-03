@@ -4,9 +4,11 @@ from typing import List, Optional
 from backend.config import PROJECT_NAME
 from backend import db_utils
 from backend.models import RunSummary, RunDetail, RunComparison, NoteUpdate
+from agents.chat_agent import router as agent_router
+
 
 app = FastAPI(title=f"{PROJECT_NAME} Lab Notebook Backend")
-
+app.include_router(agent_router)
 
 @app.get("/health")
 def health():

@@ -43,11 +43,21 @@ class ComparisonResult(BaseModel):
         default_factory=dict,
         description="Per-hparam values for each run, e.g. {'learning_rate': {'a':1e-3,'b':3e-4}}",
     )
+# agents/agents.py
 
-########### ------ To be shared to UI ------------- ################
+from typing import Any, Dict, List, Optional
+
 class AgentAnswer(BaseModel):
     intent: str  # "compare_runs", "list_runs", "best_run", "flag_run", etc.
     natural_language_answer: str
     used_run_ids: List[str] = Field(default_factory=list)
-    comparison: Optional[ComparisonResult] = None
+    comparison: Optional[Dict[str, Any]] = None   # 👈 change this line
     flagged_run_id: Optional[str] = None
+
+########### ------ To be shared to UI ------------- ################
+# class AgentAnswer(BaseModel):
+#     intent: str  # "compare_runs", "list_runs", "best_run", "flag_run", etc.
+#     natural_language_answer: str
+#     used_run_ids: List[str] = Field(default_factory=list)
+#     comparison: Optional[ComparisonResult] = None
+#     flagged_run_id: Optional[str] = None

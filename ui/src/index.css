@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* small global helpers */
+html, body, #root { height: 100%; }
+body { @apply bg-slate-50 text-slate-900; }
+
+:root {
+    --card: bg-white border border-slate-200 rounded-xl shadow-sm;
+  }
+  

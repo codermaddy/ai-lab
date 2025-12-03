@@ -10,7 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score, f1_score, log_loss
 
 # import decorator (installed editable)
-from libs.lab_logger.core import log_run
+from lab_logger.core import log_run
 
 
 def build_sgd_model(model_name: str, learning_rate: float, random_state: int) -> SGDClassifier:
@@ -43,7 +43,6 @@ def build_sgd_model(model_name: str, learning_rate: float, random_state: int) ->
 
 
 def _safe_log_loss(model, X, y):
-
     try:
         # best case: model has predict_proba
         if hasattr(model, "predict_proba"):
@@ -73,22 +72,34 @@ def train_model(
     model_name: str = "logistic_regression",
     experiment_name: str = "iris_sgd_baseline",
     task_name: str = "iris_classification",
+    dataset_name: str = "iris_classification",
 ):
     """
-    Iris experiment with:
+    Toy classification experiment with:
     - SGD-based models (logistic_regression, linear_svm, perceptron)
     - True epoch-wise training (n_epochs, partial_fit)
     - Per-epoch train & val loss (for plotting)
     - Final accuracy / f1 / losses / runtime_sec
     - Checkpoint + metrics.csv as artifacts
-    - Semantic params: experiment_name, model_name, task_name
+    - Semantic params: experiment_name, model_name, task_name, dataset_name
       (stored in params_json by the logger)
     """
 
     wall_start = time.time()
 
     # 1. Load dataset & split
-    X, y = datasets.load_iris(return_X_y=True)
+    # dataset_name controls which sklearn toy dataset we use.
+    # We use *_classification names so they match what the agent will query.
+    if dataset_name == "iris_classification":
+        X, y = datasets.load_iris(return_X_y=True)
+    elif dataset_name == "wine_classification":
+        X, y = datasets.load_wine(return_X_y=True)
+    elif dataset_name in ["breast_cancer_classification", "breast_cancer"]:
+        X, y = datasets.load_breast_cancer(return_X_y=True)
+    else:
+        # Fallback: default to iris if unknown dataset_name is given
+        X, y = datasets.load_iris(return_X_y=True)
+
     X_train, X_val, y_train, y_val = train_test_split(
         X,
         y,
@@ -113,7 +124,7 @@ def train_model(
     val_losses = []
 
     for epoch in range(1, int(n_epochs) + 1):
-        # First call to partial_fit 
+        # First call to partial_fit
         if epoch == 1:
             model.partial_fit(X_train, y_train, classes=classes)
         else:
@@ -150,6 +161,7 @@ def train_model(
             "model_name": model_name,
             "experiment_name": experiment_name,
             "task_name": task_name,
+            "dataset_name": dataset_name,
         },
         ckpt_path,
     )
@@ -183,22 +195,21 @@ def train_model(
         "final_metrics": final_metrics,
         "artifacts": artifacts,
         # semantic fields are in kwargs:
-        #   experiment_name, model_name, task_name, n_epochs, learning_rate, ...
+        #   experiment_name, model_name, task_name, dataset_name, n_epochs, learning_rate, ...
     }
 
 
 if __name__ == "__main__":
-    # Example run ( ( call sweep.py for multiple mock exmaples))
     train_model(
         test_size=0.25,
         random_state=0,
         n_epochs=30,
         learning_rate=0.01,
-        model_name="logistic_regression",  # or "linear_svm", "perceptron"
+        model_name="logistic_regression",
         experiment_name="iris_sgd_multi_model_v1",
-        task_name="Task A",
+        task_name="iris_classification",
+        dataset_name="iris_classification",
     )
-
 
 ## old code
 
