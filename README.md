@@ -703,7 +703,7 @@ Here is a **minimal, clean, ready-to-paste** version for your README — no fluf
 
 ---
 
-#12. Minimal Workflow Summary
+# 12. Minimal Workflow Summary
 
 1. **Create `.env`**
 
