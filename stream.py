@@ -18,7 +18,8 @@ st.set_page_config(
     page_title="AI Lab Notebook",
     layout="wide",
 )
-
+if "chat_messages" not in st.session_state:
+    st.session_state.chat_messages = []
 
 # -------------------------------------------------------------------
 # Simple HTTP helpers
@@ -592,7 +593,7 @@ with tab_compare:
                     # Left: train vs val loss curves (smaller figsize)
                     with col_loss:
                         if loss_curves:
-                            fig_loss, ax_loss = plt.subplots(figsize=(5, 3))
+                            fig_loss, ax_loss = plt.subplots(figsize=(4, 3))
                             for rid, dfm in loss_curves.items():
                                 short_id = rid[:8]
                                 ax_loss.plot(
@@ -609,7 +610,7 @@ with tab_compare:
                             ax_loss.set_xlabel("Epoch")
                             ax_loss.set_ylabel("Loss")
                             ax_loss.set_title("Train / Val loss vs Epoch")
-                            ax_loss.legend(fontsize=8)
+                            ax_loss.legend(fontsize=4)
                             fig_loss.tight_layout()
                             st.pyplot(fig_loss)
                         else:
@@ -620,7 +621,7 @@ with tab_compare:
                         if metric_for_lb in metrics_df.columns:
                             metric_df = metrics_df.dropna(subset=[metric_for_lb])
                             if not metric_df.empty:
-                                fig_bar, ax_bar = plt.subplots(figsize=(5, 3))
+                                fig_bar, ax_bar = plt.subplots(figsize=(4, 3))
 
                                 # Build labels as "task_name | model_name"
                                 x_labels = []
@@ -640,7 +641,7 @@ with tab_compare:
                                 ax_bar.set_xlabel("Task + model")
                                 ax_bar.set_ylabel(metric_for_lb)
                                 ax_bar.set_title(f"{metric_for_lb} across selected runs")
-                                ax_bar.tick_params(axis="x", rotation=20, labelsize=8)
+                                ax_bar.tick_params(axis="x", rotation=20, labelsize=4)
                                 fig_bar.tight_layout()
                                 st.pyplot(fig_bar)
                             else:
@@ -655,64 +656,128 @@ with tab_compare:
 # TAB 3: Assistant
 # -------------------------------------------------------------------
 
-with tab_assistant:
-    st.subheader("Experiment assistant")
+# with tab_assistant:
+#     st.subheader("Experiment assistant")
 
-    if "chat_messages" not in st.session_state:
-        st.session_state.chat_messages = []
+#     # if "chat_messages" not in st.session_state:
+#     #     st.session_state.chat_messages = []
+
+#     # Show history
+#     for msg in st.session_state.chat_messages:
+#         if msg["role"] == "user":
+#             with st.chat_message("user"):
+#                 st.markdown(msg["content"])
+#         else:
+#             with st.chat_message("assistant"):
+#                 st.markdown(msg["content"])
+
+#     user_input = st.chat_input("Ask about your experiments, runs, models, datasets...")
+
+#     if user_input:
+#         # Add user message to history
+#         # st.session_state.chat_messages.append({"role": "user", "content": user_input})
+#         with st.chat_message("assistant"):
+#             st.markdown(full_msg)
+
+#         # Call backend agent
+#         with st.chat_message("assistant"):
+#             with st.spinner("Thinking..."):
+#                 resp = call_agent(user_input)
+#                 if not resp:
+#                     st.error("Agent call failed.")
+#                 else:
+#                     # resp has: intent, natural_language_answer, used_run_ids, comparison, flagged_run_id
+#                     answer = resp.get("natural_language_answer") or ""
+#                     used_run_ids = resp.get("used_run_ids") or []
+#                     flagged_run_id = resp.get("flagged_run_id")
+#                     comparison = resp.get("comparison")
+
+#                     # Build a nice markdown message
+#                     lines = [answer]
+
+#                     if used_run_ids:
+#                         lines.append("")
+#                         lines.append("**Runs referenced:**")
+#                         for rid in used_run_ids:
+#                             lines.append(f"- `{rid}`")
+
+#                     if flagged_run_id:
+#                         lines.append("")
+#                         lines.append(f"**Flagged run:** `{flagged_run_id}`")
+
+#                     if comparison:
+#                         try:
+#                             better = comparison.get("better_run_id")
+#                             if better:
+#                                 lines.append("")
+#                                 lines.append(f"**Agent thinks best run:** `{better}`")
+#                         except Exception:
+#                             pass
+
+#                     full_msg = "\n".join(lines)
+#                     st.markdown(full_msg)
+#                     st.session_state.chat_messages.append(
+#                         {"role": "assistant", "content": full_msg}
+#                     )
+
+with tab_assistant:
+    st.subheader("Experiment assistant (LLM + tools)")
 
     # Show history
     for msg in st.session_state.chat_messages:
-        if msg["role"] == "user":
-            with st.chat_message("user"):
-                st.markdown(msg["content"])
-        else:
-            with st.chat_message("assistant"):
-                st.markdown(msg["content"])
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
+    # Chat input
     user_input = st.chat_input("Ask about your experiments, runs, models, datasets...")
 
     if user_input:
-        # Add user message to history
-        st.session_state.chat_messages.append({"role": "user", "content": user_input})
+        # 1) Show the current user message immediately
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
-        # Call backend agent
+        # 2) Save it to history
+        st.session_state.chat_messages.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        # 3) Call backend and show assistant reply
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 resp = call_agent(user_input)
+
                 if not resp:
-                    st.error("Agent call failed.")
+                    answer = "Agent call failed."
                 else:
-                    # resp has: intent, natural_language_answer, used_run_ids, comparison, flagged_run_id
                     answer = resp.get("natural_language_answer") or ""
                     used_run_ids = resp.get("used_run_ids") or []
                     flagged_run_id = resp.get("flagged_run_id")
                     comparison = resp.get("comparison")
 
-                    # Build a nice markdown message
                     lines = [answer]
 
                     if used_run_ids:
-                        lines.append("")
-                        lines.append("**Runs referenced:**")
+                        lines.append("\n**Runs referenced:**")
                         for rid in used_run_ids:
                             lines.append(f"- `{rid}`")
 
                     if flagged_run_id:
-                        lines.append("")
-                        lines.append(f"**Flagged run:** `{flagged_run_id}`")
+                        lines.append(f"\n**Flagged run:** `{flagged_run_id}`")
 
-                    if comparison:
-                        try:
-                            better = comparison.get("better_run_id")
-                            if better:
-                                lines.append("")
-                                lines.append(f"**Agent thinks best run:** `{better}`")
-                        except Exception:
-                            pass
+                    if comparison and comparison.get("better_run_id"):
+                        lines.append(
+                            f"\n**Agent thinks best run:** `{comparison['better_run_id']}`"
+                        )
 
-                    full_msg = "\n".join(lines)
-                    st.markdown(full_msg)
-                    st.session_state.chat_messages.append(
-                        {"role": "assistant", "content": full_msg}
-                    )
+                    answer = "\n".join(lines)
+
+                st.markdown(answer)
+
+        # 4) Save assistant reply to history
+        st.session_state.chat_messages.append({
+            "role": "assistant",
+            "content": answer
+        })
+
+
